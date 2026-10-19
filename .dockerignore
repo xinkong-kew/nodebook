@@ -1,9 +1,9 @@
-node_modules
+**/node_modules
 frontend
 学习图片
 start.py
 问题.md
-*.log
+**/*.log
 .env
 .env.local
 .git

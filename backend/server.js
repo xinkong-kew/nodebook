@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { PORT, __dirname } from './config.js';
+import { ping, dbInfo } from './db.js';
 import notesRouter from './routes/notes.js';
 import worksRouter from './routes/works.js';
 
@@ -17,9 +18,14 @@ app.use(express.json({ limit: '2mb' }));
 app.use('/api/notes', notesRouter);
 app.use('/api/works', worksRouter);
 
-// 健康检查
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, time: new Date().toISOString() });
+// 健康检查（同时探测 MySQL 连通性）
+app.get('/api/health', async (req, res) => {
+  try {
+    await ping();
+    res.json({ ok: true, db: 'up', time: new Date().toISOString() });
+  } catch (e) {
+    res.status(500).json({ ok: false, db: 'down', message: e.message });
+  }
 });
 
 // 生产环境：托管前端打包产物 frontend/dist（存在时才生效）
@@ -43,7 +49,19 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ ok: false, message: err.message || '服务器内部错误' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`[backend] 笔记网站后端已启动: http://localhost:${PORT}`);
   console.log(`[backend] API 前缀: http://localhost:${PORT}/api`);
+
+  // 启动自检：确认 MySQL 连接是否正常
+  try {
+    await ping();
+    console.log(`[backend] MySQL 连接正常: ${dbInfo()}`);
+  } catch (e) {
+    console.error(`[backend] MySQL 连接失败: ${e.message}`);
+    console.error(
+      `[backend] 请检查环境变量 DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME，` +
+        `并确认已执行 npm run db:init（当前配置: ${dbInfo()}）`
+    );
+  }
 });

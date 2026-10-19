@@ -7,11 +7,13 @@
   "main": "server.js",
   "scripts": {
     "dev": "node server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "db:init": "node scripts/init-db.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "marked": "^12.0.2"
+    "marked": "^12.0.2",
+    "mysql2": "^3.24.6"
   }
 }
