@@ -96,7 +96,8 @@ async function main() {
     user: DB.user,
     password: DB.password,
     charset: 'utf8mb4_unicode_ci',
-    multipleStatements: true
+    multipleStatements: true,
+    ssl: DB.ssl ? { minVersion: 'TLSv1.2' } : undefined
   });
 
   try {

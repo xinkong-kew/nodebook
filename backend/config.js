@@ -19,7 +19,9 @@ const DB = {
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'notes_site',
-  connectionLimit: Number(process.env.DB_POOL_SIZE || 10)
+  connectionLimit: Number(process.env.DB_POOL_SIZE || 10),
+  // 云数据库（如 Azure Database for MySQL）默认强制 TLS，置 DB_SSL=true 开启
+  ssl: /^(1|true|yes)$/i.test(process.env.DB_SSL || '')
 };
 
 export { PORT, DATA_DIR, NOTES_DIR, WORKS_FILE, DB, __dirname };

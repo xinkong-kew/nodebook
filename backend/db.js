@@ -17,7 +17,9 @@ const pool = mysql.createPool({
   connectionLimit: DB.connectionLimit,
   queueLimit: 0,
   charset: 'utf8mb4_unicode_ci',
-  dateStrings: true
+  dateStrings: true,
+  // 云数据库需要 TLS 时才加 ssl 选项
+  ssl: DB.ssl ? { minVersion: 'TLSv1.2' } : undefined
 });
 
 // 连通性探测：启动自检与 /api/health 使用
