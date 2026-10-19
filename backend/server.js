@@ -1,7 +1,9 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import express from 'express';
 import cors from 'cors';
 
-import { PORT } from './config.js';
+import { PORT, __dirname } from './config.js';
 import notesRouter from './routes/notes.js';
 import worksRouter from './routes/works.js';
 
@@ -19,6 +21,16 @@ app.use('/api/works', worksRouter);
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
+
+// 生产环境：托管前端打包产物 frontend/dist（存在时才生效）
+const DIST_DIR = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(DIST_DIR)) {
+  app.use(express.static(DIST_DIR));
+  // SPA 回退：非 /api 的 GET 请求统一返回 index.html
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+}
 
 // 404 兜底
 app.use((req, res) => {
