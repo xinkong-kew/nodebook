@@ -36,7 +36,7 @@ import NoteCard from '../components/NoteCard.vue';
 
 const loading = ref(true);
 const notes = ref([]);
-const recent = computed(() => notes.value.slice(0, 3));
+const recent = computed(() => (Array.isArray(notes.value) ? notes.value : []).slice(0, 3));
 
 onMounted(async () => {
   try {

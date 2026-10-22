@@ -54,10 +54,13 @@ const editingNote = ref(null);
 const manageMode = ref(false);
 
 const filtered = computed(() => {
+  const list = Array.isArray(notes.value) ? notes.value : [];
   const kw = keyword.value.trim().toLowerCase();
-  if (!kw) return notes.value;
-  return notes.value.filter((n) => {
-    const haystack = [n.title, n.summary, (n.tags || []).join(' ')].join(' ').toLowerCase();
+  if (!kw) return list;
+  return list.filter((n) => {
+    if (!n) return false;
+    const tags = Array.isArray(n.tags) ? n.tags.join(' ') : n.tags || '';
+    const haystack = [n.title || '', n.summary || '', tags].join(' ').toLowerCase();
     return haystack.includes(kw);
   });
 });
@@ -105,6 +108,8 @@ function brief(note) {
 }
 
 function onSaved(note, mode) {
+  if (!note) return;
+  if (!Array.isArray(notes.value)) notes.value = [];
   if (mode === 'edit') {
     const idx = notes.value.findIndex((n) => n.slug === note.slug);
     if (idx !== -1) notes.value.splice(idx, 1, brief(note));

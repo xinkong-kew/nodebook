@@ -18,16 +18,21 @@ async function request(url, options = {}) {
   return data.data;
 }
 
+// 列表接口兜底：后端返回非数组（undefined / null / 对象）时统一转为空数组，
+// 避免调用方对结果做 .slice / .filter 等数组操作时抛错导致整页白屏。
+const asList = (data) =>
+  Array.isArray(data) ? data.filter((item) => item && typeof item === 'object') : [];
+
 export const api = {
   // 笔记
-  listNotes: () => request('/notes'),
+  listNotes: () => request('/notes').then(asList),
   getNote: (slug) => request(`/notes/${encodeURIComponent(slug)}`),
   createNote: (payload) => request('/notes', { method: 'POST', body: JSON.stringify(payload) }),
   updateNote: (slug, payload) =>
     request(`/notes/${encodeURIComponent(slug)}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteNote: (slug) => request(`/notes/${encodeURIComponent(slug)}`, { method: 'DELETE' }),
   // 作品
-  listWorks: () => request('/works'),
+  listWorks: () => request('/works').then(asList),
   createWork: (payload) => request('/works', { method: 'POST', body: JSON.stringify(payload) }),
   deleteWork: (id) => request(`/works/${id}`, { method: 'DELETE' })
 };

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import express from 'express';
 import cors from 'cors';
 
-import { PORT, __dirname } from './config.js';
+import { PORT, NOTES_DIR, __dirname } from './config.js';
 import { ping, dbInfo } from './db.js';
 import notesRouter from './routes/notes.js';
 import worksRouter from './routes/works.js';
@@ -27,6 +27,19 @@ app.get('/api/health', async (req, res) => {
     res.status(500).json({ ok: false, db: 'down', message: e.message });
   }
 });
+
+// 笔记同目录下的图片：把 notes 目录里的图片资源暴露为 /note-assets/*
+// 只放行图片后缀，避免 .md 源文件被直接下载
+app.use(
+  '/note-assets',
+  (req, res, next) => {
+    if (!/\.(png|jpe?g|gif|webp|svg|bmp|avif|ico)$/i.test(req.path)) {
+      return res.status(404).json({ ok: false, message: '资源不存在' });
+    }
+    next();
+  },
+  express.static(NOTES_DIR, { index: false, dotfiles: 'ignore' })
+);
 
 // 生产环境：托管前端打包产物 frontend/dist（存在时才生效）
 const DIST_DIR = path.join(__dirname, '..', 'frontend', 'dist');

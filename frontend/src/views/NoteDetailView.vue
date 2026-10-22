@@ -1,22 +1,54 @@
 <template>
   <div class="container container-wide note-layout">
-    <!-- 左侧：本篇笔记目录（固定，占满高度） -->
+    <!-- 左侧：日期目录 + 本篇目录（固定，占满高度） -->
     <aside class="sidebar">
       <div class="sidebar-inner sidebar-panel sidebar-full">
-        <h4 class="sidebar-title">本篇目录</h4>
-        <nav v-if="note && note.toc && note.toc.length" class="toc">
-          <a
-            v-for="item in note.toc"
-            :key="item.id"
-            class="toc-item"
-            :class="'lv-' + item.level"
-            :href="'#' + item.id"
-            @click.prevent="scrollTo(item.id)"
+        <section class="toc-group">
+          <button type="button" class="toc-group-head" @click="datesOpen = !datesOpen">
+            <span>日期目录</span>
+            <span class="chevron" :class="{ open: datesOpen }">▾</span>
+          </button>
+          <nav
+            v-show="datesOpen"
+            v-if="note && note.dates && note.dates.length"
+            class="toc"
           >
-            {{ item.text }}
-          </a>
-        </nav>
-        <p v-else class="sidebar-hint">这篇笔记还没有小标题。</p>
+            <a
+              v-for="d in note.dates"
+              :key="d.id"
+              class="toc-item date-item"
+              href="#"
+              @click.prevent="scrollTo(d.id)"
+            >
+              {{ d.text }}
+            </a>
+          </nav>
+          <p v-show="datesOpen && note && (!note.dates || !note.dates.length)" class="sidebar-hint">
+            本页没有日期小节。
+          </p>
+        </section>
+
+        <section class="toc-group">
+          <button type="button" class="toc-group-head" @click="tocOpen = !tocOpen">
+            <span>本篇目录</span>
+            <span class="chevron" :class="{ open: tocOpen }">▾</span>
+          </button>
+          <nav v-show="tocOpen" v-if="note && note.toc && note.toc.length" class="toc">
+            <a
+              v-for="item in note.toc"
+              :key="item.id"
+              class="toc-item"
+              :class="'lv-' + item.level"
+              href="#"
+              @click.prevent="scrollTo(item.id)"
+            >
+              {{ item.text }}
+            </a>
+          </nav>
+          <p v-show="tocOpen && note && (!note.toc || !note.toc.length)" class="sidebar-hint">
+            这篇笔记还没有小标题。
+          </p>
+        </section>
       </div>
     </aside>
 
@@ -54,7 +86,15 @@
       <div class="sidebar-inner sidebar-panel">
         <h4 class="sidebar-title">重点内容</h4>
         <ul v-if="note && note.keyPoints && note.keyPoints.length" class="keypoints">
-          <li v-for="(point, i) in note.keyPoints" :key="i">{{ point }}</li>
+          <li
+            v-for="point in note.keyPoints"
+            :key="point.id"
+            class="keypoint-item"
+            title="点击跳转到正文对应位置"
+            @click="scrollTo(point.id)"
+          >
+            {{ point.text }}
+          </li>
         </ul>
         <p v-else class="sidebar-hint">
           暂无重点。在正文中用引用标记重点，会自动汇总到这里：
@@ -80,13 +120,18 @@ const loading = ref(true);
 const error = ref('');
 const note = ref(null);
 const showModal = ref(false);
+const datesOpen = ref(true);
+const tocOpen = ref(true);
 
 async function loadNote(slug) {
   loading.value = true;
   error.value = '';
   note.value = null;
   try {
-    note.value = await api.getNote(slug);
+    const data = await api.getNote(slug);
+    // 后端未返回有效数据时走错误提示，避免模板访问 note.title 时崩溃白屏
+    if (!data || typeof data !== 'object') throw new Error('笔记数据格式异常');
+    note.value = data;
   } catch (e) {
     error.value = e.message || '笔记不存在';
   } finally {

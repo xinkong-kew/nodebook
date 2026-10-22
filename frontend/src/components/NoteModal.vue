@@ -49,7 +49,7 @@ watch(
   (open) => {
     if (!open) return;
     form.title = props.note ? props.note.title || '' : '';
-    form.tags = props.note ? (props.note.tags || []).join(', ') : '';
+    form.tags = props.note ? (Array.isArray(props.note.tags) ? props.note.tags.join(', ') : props.note.tags || '') : '';
     form.content = props.note ? props.note.content || '' : '';
   }
 );

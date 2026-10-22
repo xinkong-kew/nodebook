@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: DB.connectionLimit,
   queueLimit: 0,
-  charset: 'utf8mb4_unicode_ci',
+   charset: 'utf8mb4_unicode_ci',
   dateStrings: true,
   // 云数据库需要 TLS 时才加 ssl 选项
   ssl: DB.ssl ? { minVersion: 'TLSv1.2' } : undefined

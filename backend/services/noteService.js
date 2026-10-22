@@ -6,8 +6,11 @@ import { NOTES_DIR } from '../config.js';
 
 /**
  * 笔记数据服务
- * - 默认从 backend/data/notes 文件夹读取 .md 文件（把文件丢进去即可自动展示）
- * - 也支持通过 API 手动新增 / 删除笔记（后续可无缝替换为数据库实现）
+ * notes 目录下支持任意层级，规则只有一条：
+ *   含 .md 的文件夹 = 一篇笔记，文件夹名就是 slug，md 与图片放同一目录
+ *   例：notes/STM32/10.20/10.20.md + notes/STM32/10.20/xxx.jpg
+ * 正文里的图片写相对路径即可，例如 ![图](xxx.jpg) 或 ![图](./xxx.jpg)
+ * 后端会把它改写成 /note-assets/STM32/10.20/xxx.jpg 交给前端访问
  */
 
 // 简易 front-matter 解析：开头 --- 之间的 key: value 作为元信息
@@ -60,6 +63,21 @@ function titleFromSlug(slug) {
   return slug.replace(/[-_]/g, ' ').trim();
 }
 
+// 无 front-matter 时，优先用正文第一个 H1，其次用第一行文字
+function titleFromContent(content, slug) {
+  const lines = content.split('\n').map((l) => l.trim());
+
+  const heading = lines.find((l) => /^#\s+/.test(l));
+  if (heading) return heading.replace(/^#\s+/, '').trim();
+
+  const first = lines.find(Boolean);
+  if (first && first.length <= 60 && !/^[!>#\-*|`<[]/.test(first)) {
+    return first.replace(/[：:]\s*$/, '');
+  }
+
+  return titleFromSlug(slug);
+}
+
 // 重点标记规则：正文中以引用形式书写「> 重点：xxx」的行会被自动汇总
 const KEY_POINT_RE = /^>\s*(?:\*\*|__)?\s*重点\s*(?:\*\*|__)?\s*[:：]?\s*(.+?)\s*$/;
 
@@ -85,19 +103,18 @@ function slugifyHeading(text) {
   return base || 'section';
 }
 
-// 生成「本篇笔记」的目录（H2~H4），并给渲染后的标题补上 id 锚点
-function buildToc(content) {
-  const toc = [];
+// 把正文里的相对图片路径补成可访问地址，绝对地址 / 网络地址保持原样
+function rewriteImagePaths(content, assetBase) {
+  return content.replace(/(!\[[^\]]*\]\()([^)\s]+)([^)]*\))/g, (full, head, src, tail) => {
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(src)) return full;
+    return `${head}${assetBase}${encodeURI(src.replace(/^\.\//, ''))}${tail}`;
+  });
+}
+
+// 分配并登记锚点 id，保证同篇笔记内唯一
+function makeAssignId() {
   const used = Object.create(null);
-
-  // 去掉代码块，避免把代码里的 # 误当成标题
-  const plain = content.replace(/```[\s\S]*?```/g, '');
-
-  for (const raw of plain.split('\n')) {
-    const m = raw.match(/^(#{2,4})\s+(.+?)\s*$/);
-    if (!m) continue;
-    const level = m[1].length;
-    const text = m[2].replace(/[*_`]/g, '').trim();
+  return (text) => {
     let id = slugifyHeading(text);
     if (used[id]) {
       used[id] += 1;
@@ -105,16 +122,70 @@ function buildToc(content) {
     } else {
       used[id] = 1;
     }
-    toc.push({ level, text, id });
+    return id;
+  };
+}
+
+// 生成整篇笔记的结构：
+//   - dates：H1 标题（日期小节），供左侧「日期目录」跳转
+//   - toc：  H2~H4 标题，供左侧「本篇目录」跳转
+//   - keyPoints：重点块（带锚点），供右侧「重点内容」点击跳转
+//   - html：渲染后已补好 id 锚点（H1~H4 标题 + 重点引用块）
+function buildToc(content, assetBase = '') {
+  const toc = [];
+  const dates = [];
+  const assignId = makeAssignId();
+
+  // 相对路径图片改写成可访问的绝对路径（不改动 http(s)、/ 开头、data: 这类原样地址）
+  const md = assetBase ? rewriteImagePaths(content, assetBase) : content;
+
+  // 去掉代码块，避免把代码里的 # 误当成标题
+  const plain = md.replace(/```[\s\S]*?```/g, '');
+
+  const clean = (s) => s.replace(/[*_`]/g, '').trim();
+
+  for (const raw of plain.split('\n')) {
+    let m = raw.match(/^#\s+(.+?)\s*$/);
+    if (m) {
+      const text = clean(m[1]);
+      dates.push({ text, id: assignId(text) });
+      continue;
+    }
+    m = raw.match(/^(#{2,4})\s+(.+?)\s*$/);
+    if (m) {
+      const level = m[1].length;
+      const text = clean(m[2]);
+      toc.push({ level, text, id: assignId(text) });
+    }
   }
 
-  let cursor = 0;
-  const html = marked.parse(content).replace(/<h([2-4])>/g, (full, lvl) => {
-    const item = toc[cursor++];
+  // 重点内容（顺序与正文一致），固定 key-N 作为锚点，避免中文被 slug 清空
+  const keyPoints = extractKeyPoints(content).map((text, i) => ({ text, id: `key-${i + 1}` }));
+
+  // 渲染 HTML 并给标题补 id（H1 走 dates，H2~H4 走 toc）
+  let dateCursor = 0;
+  let tocCursor = 0;
+  let html = marked.parse(md).replace(/<h([1-4])>/g, (full, lvl) => {
+    if (lvl === '1') {
+      const item = dates[dateCursor++];
+      return item ? `<h1 id="${item.id}">` : full;
+    }
+    const item = toc[tocCursor++];
     return item ? `<h${lvl} id="${item.id}">` : full;
   });
 
-  return { toc, html };
+  // 给「重点」引用块补锚点，供右侧点击跳转
+  let kpCursor = 0;
+  html = html.replace(/<blockquote>([\s\S]*?)<\/blockquote>/g, (full, inner) => {
+    if (keyPoints[kpCursor] && /重点\s*[:：]/.test(inner)) {
+      const id = keyPoints[kpCursor].id;
+      kpCursor += 1;
+      return `<blockquote id="${id}">${inner}</blockquote>`;
+    }
+    return full;
+  });
+
+  return { toc, dates, keyPoints, html };
 }
 
 // 防止路径穿越，只允许安全的文件名
@@ -147,31 +218,110 @@ async function ensureDir() {
   await fs.mkdir(NOTES_DIR, { recursive: true });
 }
 
-// 读取单篇笔记
-async function readNote(slug) {
-  ensureSafeSlug(slug);
-  const file = path.join(NOTES_DIR, `${slug}.md`);
-  let raw;
+async function isFile(target) {
   try {
-    raw = await fs.readFile(file, 'utf-8');
+    return (await fs.stat(target)).isFile();
   } catch {
+    return false;
+  }
+}
+
+// 递归扫描 notes 目录：含 .md 的文件夹按一篇笔记处理，文件夹名即 slug
+async function collectNotes(dir = NOTES_DIR) {
+  const notes = [];
+  let entries;
+
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true });
+  } catch {
+    return notes;
+  }
+
+  const mdFiles = [];
+  const subDirs = [];
+
+  for (const entry of entries) {
+    if (entry.name.startsWith('.')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isFile() && entry.name.toLowerCase().endsWith('.md')) {
+      mdFiles.push(full);
+    } else if (entry.isDirectory()) {
+      subDirs.push(full);
+    }
+  }
+
+  const isRoot = dir === NOTES_DIR;
+
+  if (!isRoot && mdFiles.length) {
+    // 当前文件夹就是一篇笔记：优先同名 md，否则取排序后的第一个
+    const sameName = mdFiles.find((f) => path.basename(f, '.md') === path.basename(dir));
+    notes.push({ file: sameName || mdFiles.sort()[0], dir });
+    return notes;
+  }
+
+  for (const file of mdFiles) notes.push({ file, dir });
+  for (const sub of subDirs) notes.push(...(await collectNotes(sub)));
+
+  return notes;
+}
+
+// slug → { file, assetBase } 索引；同名笔记用上层目录名区分
+async function buildIndex() {
+  const index = new Map();
+
+  for (const { file, dir } of await collectNotes()) {
+    const isRoot = dir === NOTES_DIR;
+    const baseSlug = isRoot ? path.basename(file, '.md') : path.basename(dir);
+    const assetBase = isRoot
+      ? '/note-assets/'
+      : `/note-assets/${path
+          .relative(NOTES_DIR, dir)
+          .split(path.sep)
+          .map(encodeURIComponent)
+          .join('/')}/`;
+
+    let slug = baseSlug;
+    if (index.has(slug)) {
+      const prefix = path.relative(NOTES_DIR, dir).split(path.sep).filter(Boolean).join('-');
+      slug = prefix ? `${prefix}-${baseSlug}` : `${baseSlug}-${Date.now()}`;
+    }
+
+    index.set(slug, { file, dir, assetBase });
+  }
+
+  return index;
+}
+
+// 定位笔记文件
+async function resolveNote(slug) {
+  ensureSafeSlug(slug);
+  const hit = (await buildIndex()).get(slug);
+
+  if (!hit) {
     const err = new Error('笔记不存在');
     err.status = 404;
     throw err;
   }
+
+  return hit;
+}
+
+// 读取单篇笔记
+async function readNote(slug) {
+  const { file, assetBase } = await resolveNote(slug);
+  const raw = await fs.readFile(file, 'utf-8');
 
   const { meta, content } = parseFrontMatter(raw);
   const stat = await fs.stat(file);
 
   return {
     slug,
-    title: meta.title || titleFromSlug(slug),
+    title: meta.title || titleFromContent(content, slug),
     date: meta.date || stat.mtime.toISOString().slice(0, 10),
     tags: meta.tags || [],
     summary: buildSummary(content),
     content,
-    keyPoints: extractKeyPoints(content),
-    ...buildToc(content),
+    ...buildToc(content, assetBase),
     updatedAt: stat.mtime.toISOString()
   };
 }
@@ -179,18 +329,16 @@ async function readNote(slug) {
 // 列表（按日期倒序）
 async function listNotes() {
   await ensureDir();
-  const files = (await fs.readdir(NOTES_DIR)).filter((f) => f.toLowerCase().endsWith('.md'));
 
   const notes = [];
-  for (const file of files) {
-    const slug = file.replace(/\.md$/i, '');
+  for (const slug of (await buildIndex()).keys()) {
     try {
       const note = await readNote(slug);
       const { html, content, ...rest } = note;
       notes.push(rest);
     } catch (e) {
       // 忽略无法解析的单个文件，避免影响整体列表
-      console.warn(`[notes] 跳过无法读取的笔记: ${file} -> ${e.message}`);
+      console.warn(`[notes] 跳过无法读取的笔记: ${slug} -> ${e.message}`);
     }
   }
 
@@ -209,12 +357,8 @@ async function createNote({ title, content, tags, slug }) {
   await ensureDir();
   let finalSlug = slug ? slugify(slug) : slugify(title);
 
-  // 同名则追加时间戳，避免覆盖
-  const exists = await fs
-    .access(path.join(NOTES_DIR, `${finalSlug}.md`))
-    .then(() => true)
-    .catch(() => false);
-  if (exists) finalSlug = `${finalSlug}-${Date.now()}`;
+  // 同名则追加时间戳，避免覆盖（含任意层级的同名笔记）
+  if ((await buildIndex()).has(finalSlug)) finalSlug = `${finalSlug}-${Date.now()}`;
 
   const tagList = Array.isArray(tags)
     ? tags
@@ -242,22 +386,15 @@ async function createNote({ title, content, tags, slug }) {
 
 // 修改笔记（保留原日期，重写 front-matter 与正文）
 async function updateNote(slug, { title, content, tags } = {}) {
-  ensureSafeSlug(slug);
-  const file = path.join(NOTES_DIR, `${slug}.md`);
-
-  let raw;
-  try {
-    raw = await fs.readFile(file, 'utf-8');
-  } catch {
-    const err = new Error('笔记不存在');
-    err.status = 404;
-    throw err;
-  }
+  const { file } = await resolveNote(slug);
+  const raw = await fs.readFile(file, 'utf-8');
 
   const { meta, content: oldContent } = parseFrontMatter(raw);
 
   const finalTitle =
-    title != null && String(title).trim() ? String(title).trim() : meta.title || titleFromSlug(slug);
+    title != null && String(title).trim()
+      ? String(title).trim()
+      : meta.title || titleFromContent(oldContent, slug);
   const finalTags =
     tags == null
       ? meta.tags || []
@@ -285,12 +422,16 @@ async function updateNote(slug, { title, content, tags } = {}) {
   return readNote(slug);
 }
 
-// 删除笔记
+// 删除笔记：文件夹笔记会连同同目录下的图片一起删除
 async function deleteNote(slug) {
-  ensureSafeSlug(slug);
-  const file = path.join(NOTES_DIR, `${slug}.md`);
+  const { file, dir } = await resolveNote(slug);
+
   try {
-    await fs.unlink(file);
+    if (dir === NOTES_DIR) {
+      await fs.unlink(file);
+    } else {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
   } catch {
     const err = new Error('笔记不存在');
     err.status = 404;

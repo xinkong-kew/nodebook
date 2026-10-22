@@ -12,6 +12,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true
+      },
+      // 笔记同目录下的图片由后端提供
+      '/note-assets': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
       }
     }
   }

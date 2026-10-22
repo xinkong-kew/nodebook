@@ -583,26 +583,43 @@ textarea:focus {
   }
 }
 
-/* 笔记详情：三栏布局（左：本篇目录 / 中：正文 / 右：重点） */
+/* 笔记详情：三栏布局（左：日期目录+本篇目录 / 中：正文 / 右：重点） */
 .container-wide {
   max-width: 1200px;
 }
 
+/* 详情页三栏铺满整个视口：去边距、去圆角间隙，高度正好填满顶部导航以下区域 */
 .note-layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 240px;
-  gap: 24px;
+  grid-template-columns: 240px minmax(0, 1fr) 260px;
+  height: calc(100vh - var(--header-h));
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
   align-items: stretch;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  overflow: hidden;
+  background: var(--surface);
 }
 
-/* 侧栏：固定在视口内，拥有自己的滚动条 */
+/* 左右侧栏：占满整列高度，内部各自滚动 */
+.note-layout .sidebar {
+  height: 100%;
+  min-height: 0;
+  border-right: 1px solid var(--border);
+}
+
+.note-layout .sidebar:last-child {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+
 .sidebar-inner {
-  position: sticky;
-  top: calc(var(--header-h) + 20px);
-  max-height: calc(100vh - var(--header-h) - 40px);
+  height: 100%;
   overflow-y: auto;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* 侧栏面板外观 */
@@ -612,11 +629,6 @@ textarea:focus {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 16px 14px;
-}
-
-/* 左栏：占满整个可视高度 */
-.sidebar-full {
-  height: calc(100vh - var(--header-h) - 40px);
 }
 
 /* 侧栏滚动条：细一些，更清爽 */
@@ -675,6 +687,50 @@ textarea:focus {
   color: var(--text-muted);
 }
 
+/* 左侧折叠目录组（日期目录 / 本篇目录） */
+.toc-group + .toc-group {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.toc-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0 0 10px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.toc-group-head:hover {
+  color: var(--text);
+}
+
+.chevron {
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+  transform: rotate(-90deg);
+}
+
+.chevron.open {
+  transform: rotate(0deg);
+}
+
+/* 日期目录条目略作强调 */
+.date-item {
+  font-weight: 600;
+}
+
 /* 右侧重点 */
 .keypoints {
   list-style: none;
@@ -693,6 +749,17 @@ textarea:focus {
   font-size: 13.5px;
   line-height: 1.6;
   color: #5c4a1e;
+}
+
+/* 重点条目可点击，跳转到正文对应引用块 */
+.keypoint-item {
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.keypoint-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.1);
 }
 
 .sidebar-hint {
@@ -714,10 +781,38 @@ textarea:focus {
 }
 
 /* 标题锚点：滚动时留出吸顶导航的高度 */
+.article h1,
 .article h2,
 .article h3,
-.article h4 {
+.article h4,
+.article blockquote {
   scroll-margin-top: 84px;
+}
+
+/* 中间正文列：占满高度、内部滚动，顶部工具条吸顶 */
+.note-layout .note-main {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--surface);
+}
+
+.note-layout .note-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--surface);
+  margin-bottom: 0;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.note-layout .article {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 28px 40px 56px;
 }
 
 html {
@@ -728,20 +823,36 @@ html {
   .note-layout {
     grid-template-columns: 1fr;
     gap: 20px;
+    height: auto;
+    overflow: visible;
+    padding: 20px;
+    background: var(--bg);
+  }
+
+  .note-layout .sidebar,
+  .note-layout .sidebar:last-child {
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .note-layout .sidebar-inner {
+    height: auto;
+    overflow: visible;
+  }
+
+  .note-layout .note-main {
+    height: auto;
+    overflow: visible;
+  }
+
+  .note-layout .note-topbar {
+    position: static;
   }
 
   .note-main {
     order: -1;
-  }
-
-  .sidebar-inner {
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .sidebar-full {
-    height: auto;
   }
 
   .toc {
