@@ -19,7 +19,7 @@ const router = createRouter({
 });
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} · 学习笔记` : '学习笔记';
+  document.title = to.meta.title ? `${to.meta.title} · 星空笔记` : '星空笔记';
 });
 
 export default router;

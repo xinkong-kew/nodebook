@@ -119,28 +119,106 @@ main.main-flush {
   margin: 0 0 28px;
 }
 
-/* 首页 hero */
+/* 首页 hero：星空主题大标题横幅 */
 .hero {
-  padding: 48px 0 24px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+  padding: 76px 40px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.14), transparent 42%),
+    radial-gradient(circle at 82% 18%, rgba(150, 180, 255, 0.22), transparent 46%),
+    radial-gradient(circle at 60% 82%, rgba(120, 140, 255, 0.18), transparent 42%),
+    linear-gradient(150deg, #0b1026 0%, #1b2a5e 52%, #2c4180 100%);
+  color: #fff;
 }
 
-.hero h1 {
-  font-size: 34px;
-  margin: 0 0 12px;
-  letter-spacing: -0.5px;
+/* 星空点阵 */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    100px 30px 0 #fff,
+    240px 70px 0 rgba(255, 255, 255, 0.75),
+    420px 30px 0 #fff,
+    620px 90px 0 rgba(255, 255, 255, 0.8),
+    760px 44px 0 #fff,
+    60px 120px 0 rgba(255, 255, 255, 0.6),
+    300px 150px 0 #fff,
+    500px 130px 0 rgba(255, 255, 255, 0.7),
+    700px 180px 0 #fff,
+    180px 200px 0 rgba(255, 255, 255, 0.55),
+    640px 230px 0 rgba(255, 255, 255, 0.6);
+  opacity: 0.8;
+  pointer-events: none;
 }
 
-.hero p {
-  color: var(--text-muted);
+.hero > .container {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.hero-title {
+  margin: 0 0 14px;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 1.15;
+  text-align: center;
+  text-shadow: 0 2px 24px rgba(255, 255, 255, 0.25);
+}
+
+.hero-sub {
+  margin: 0 auto 28px;
   font-size: 17px;
-  margin: 0 0 24px;
-  max-width: 620px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 560px;
 }
 
 .hero-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* hero 内的按钮：适配深色星空背景 */
+.hero .btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.hero .btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #fff;
+}
+
+.hero .btn-primary {
+  background: #4f7dff;
+  border-color: #4f7dff;
+  color: #fff;
+}
+
+.hero .btn-primary:hover {
+  background: #6690ff;
+  border-color: #6690ff;
+}
+
+/* 首页最新笔记区块 */
+.home-notes {
+  margin-top: 40px;
 }
 
 /* 按钮 */
@@ -565,8 +643,12 @@ textarea:focus {
     --header-h: 54px;
   }
 
-  .hero h1 {
-    font-size: 27px;
+  .hero {
+    padding: 48px 24px;
+  }
+
+  .hero-title {
+    font-size: 34px;
   }
 
   .article {

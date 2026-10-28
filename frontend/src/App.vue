@@ -1,7 +1,7 @@
 <template>
   <header class="site-header">
     <div class="container">
-      <router-link class="brand" to="/">学习笔记</router-link>
+      <router-link class="brand" to="/">星空笔记</router-link>
       <nav class="nav">
         <router-link to="/">首页</router-link>
         <router-link to="/notes">笔记</router-link>
@@ -15,7 +15,7 @@
   </main>
 
   <footer v-if="!isNoteDetail" class="site-footer">
-    <div class="container">学习笔记 · 简约博客</div>
+    <div class="container">星空笔记 · 简约博客</div>
   </footer>
 
   <div class="toast" :class="{ show: !!toastMessage }">{{ toastMessage }}</div>
