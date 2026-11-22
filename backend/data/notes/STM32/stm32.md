@@ -11,6 +11,8 @@
   
 # 10月20日
 
+# 一、STM32 芯片基础
+
 ![手写笔记](./10.20/10.20.jpg)
 
 ## 1. STM32 芯片简介
@@ -106,6 +108,8 @@ STM32F103C8T6 采用 LQFP48 封装，共 48 个引脚。
 ● 若配置正确却无法下载，检查 BOOT0/NRST 的接线是否正确，以及是否已正确复位。
 
 # 10月21日
+
+# 二、GPIO 输入输出
 今天学习了STM32的点灯，成功用寄存器和库函数都实现了点灯功能。
 
 ![点灯效果](./10.21/点灯.jpg)
@@ -421,6 +425,8 @@ GPIO 的输入部分包含四种模式：浮空输入、上拉输入、下拉输
 模板下载链接:(https://github.com/xinkong-kew/STM32-Template)
 # 10月23日
 
+# 三、USART 串口通信
+
 今天开始串口的学习，串口是 STM32 最重要的外设之一，用于与外部设备进行通信，比如 PC、手机、蓝牙模块、GPS 模块等。几乎所有嵌入式项目都离不开串口——调试打印日志、上位机通信、模块指令交互，都靠它。
 
 > 重点：串口通信是**异步、全双工、点对点**的通信方式，只需要 **Tx（发送）** 和 **Rx（接收）** 两根线 + GND 共地即可通信。
@@ -694,6 +700,8 @@ USART（Universal Synchronous/Asynchronous Receiver/Transmitter，通用同步/�
 
 > 总结：串口通信贯穿整个嵌入式开发——调试用 `printf` 输出变量值、上位机下发指令控制硬件、蓝牙/WiFi 模块的 AT 指令交互，全都离不开它。今天的串口发送和接收是整个通信体系的基础，后续 DMA、中断等内容都会在此基础上展开。
 # 10月27日
+
+# 四、I2C 通信
 
 由于学校有事以及自身原因，给自己小放了三天假期。今天重新开始学习，进入 I2C 通信的世界。I2C 是嵌入式开发中极其重要的总线协议，几乎所有传感器、存储器、显示屏都通过它来与 MCU 交互。
 
@@ -1244,6 +1252,8 @@ I2C 通信中，状态寄存器 SR1 和 SR2 的标志位是所有判断逻辑的
 
 # 11月1日
 
+# 五、SPI 通信
+
 今天正式开始 SPI 总线的学习，希望在这次学习中学会 SPI 总线的所有知识。
 
 ---
@@ -1575,6 +1585,8 @@ SPI_NSSInternalSoftwareConfig(SPI1, SPI_NSSInternalSoft_Set);  // 内部软 NSS 
 
 # 11月3日
 
+# 六、中断系统
+
 现在正式开启中断的学习。
 
 ---
@@ -1807,6 +1819,8 @@ SPI_NSSInternalSoftwareConfig(SPI1, SPI_NSSInternalSoft_Set);  // 内部软 NSS 
 
 # 11月4日
 
+# 七、时钟系统
+
 昨天学完了中断和外部中断（EXTI），感觉 EXTI 是中断的进阶，多了 EXTI 线可以控制具体给哪个引脚进行中断控制。
 
 今天学习时钟，这个让我熟悉又不熟悉的存在——熟悉是以前学的每一个模块都有它的身影，不熟悉是具体的概念真不知道。
@@ -2017,6 +2031,8 @@ SPI_NSSInternalSoftwareConfig(SPI1, SPI_NSSInternalSoft_Set);  // 内部软 NSS 
 ---
 
 # 11月5日
+
+# 八、定时器与 PWM
 
 今天开始定时器的学习，这个篇章是整个学习中最长的学习，我之前在抖音上面看到过相关的概念，希望可以理解的通透一些。
 ---
@@ -2256,8 +2272,6 @@ TIM_SetCompare1(TIM1, ccr1);             // 更新 CCR，改变占空比
 
 ### 41.3 TIM 初始化参数
 
-![输入捕获模式选择](./11.7/输入捕获模式选择.jpg)
-
 > **TIM_OCInitTypeDef 关键参数**：
 > - **TIM_OCMode**：输出比较模式（如 TIM_OCMode_PWM1）
 > - **TIM_OutputState**：输出使能，设置为 TIM_OutputState_Enable
@@ -2312,8 +2326,6 @@ TIM_SetCompare1(TIM1, ccr1);             // 更新 CCR，改变占空比
 > **输入捕获（Input Capture）**：用于测量输入信号的时间参数（周期、占空比、脉冲宽度等）。当外部引脚上的信号发生边沿变化（上升沿或下降沿）时，硬件自动把当前 CNT 的值锁存到 CCR 寄存器中，并产生一个捕获事件——相当于「拍快照」记下了边沿发生的那一瞬间的计数值。
 
 ### 42.2 输入捕获的内部结构
-
-![输入捕获的内部结构](./11.7/输入捕获的内部结构.jpg)
 
 > **输入捕获的完整信号链**（从左到右）：
 > - **输入滤波**：滤除毛刺/干扰
@@ -2375,7 +2387,7 @@ TIM_SetCompare1(TIM1, ccr1);             // 更新 CCR，改变占空比
 
 ### 43.2 写代码
 
-![PWM测量设置](./11.7/PWM测量设置.jpg)
+![输入捕获模式选择](./11.7/输入捕获模式选择.jpg)
 
 > **输入捕获模式**：由于空闲状态需要低电平，不使用手册上的浮空输入模式，而是选择空闲时输出低电平的**输入下拉**状态，避免悬空时误触发。
 
@@ -2522,7 +2534,13 @@ TIM_SetCompare1(TIM1, ccr1);             // 更新 CCR，改变占空比
 >
 > **用途**：需要多对 PWM 信号同时启停的场景（如多路舵机控制、三相电机驱动）。
 
-### 45.4 PWM 测量原理图
+### 45.4 PWM 测量设置
+
+![PWM测量设置](./11.7/PWM测量设置.jpg)
+
+> **PWM 测量设置**：使用输入捕获功能测量 PWM 信号时，需要配置捕获通道的参数——选择捕获边沿（CH1 上升沿测周期、CH2 下降沿测脉宽）、设置输入滤波和分频器、使能相应的捕获中断。
+
+### 45.5 PWM 测量原理图
 
 ![PWM测量原理图](./11.7/PWM测量原理图.jpg)
 
@@ -2531,3 +2549,958 @@ TIM_SetCompare1(TIM1, ccr1);             // 更新 CCR，改变占空比
 > - **通道 2（CH2）**：设置为下降沿捕获 → 记录电平翻转时刻（CNT 快照 2）
 >
 > 这样 `ccr2 - ccr1` = 高电平持续时间 = 得到占空比信息；同时下一个上升沿可以测出整个周期。一套波形、两路捕获，一次完成 PWM 的周期和占空比测量。
+# 11月10日
+
+## 46. PWM 参数测量实验
+
+### 46.1 实验原理
+
+>重点：一个定时器产生 PWM，另一个定时器用输入捕获测量它的周期和占空比
+
+PWM 参数测量实验用两个定时器配合完成：TIM3 产生一路已知的 PWM 信号作为「被测对象」，TIM1 用输入捕获（PWMI 模式）去测量这路信号的周期和占空比，最后通过串口打印出来验证结果。
+
+### 46.2 产生待测 PWM 信号
+
+待测的 PWM 信号由 TIM3 产生（输出到 PA6）。配置代码分三步：
+
+**第 1 步：初始化时基单元**
+
+![PWM测量时基单元设置](./11.10/PWM测量时基单元设置.jpg)
+
+> **时基单元配置**：TIM3 的 PSC=71（72 分频 → 计数频率 1MHz）、ARR=999（周期 1ms），得到 1kHz 的 PWM 基频。开启 ARR 预加载后闭合总开关 `TIM_Cmd(TIM3, ENABLE)`。
+
+```c
+//定义时基单元的参数
+
+TIM_TimeBaseInitTypeDef TIM_InitStruct;
+
+TIM_InitStruct.TIM_Period = 999;//ARR 计数重置
+TIM_InitStruct.TIM_CounterMode = TIM_CounterMode_Up;//上计数
+TIM_InitStruct.TIM_Prescaler = 71;//分频器系数
+TIM_InitStruct.TIM_RepetitionCounter = 0;//重复计数器
+
+//开启ARR的预加载
+TIM_ARRPreloadConfig(TIM3,ENABLE);
+
+//闭合时基单元的总开关
+TIM_Cmd(TIM3,ENABLE);
+```
+
+**第 2 步：初始化输出比较**
+
+```c
+//#2.初始化输出比较通道1
+//初始化PA6
+RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+GPIO_InitTypeDef GPIO_InitStruct;
+
+GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
+GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+GPIO_InitStruct.GPIO_Speed =  GPIO_Speed_2MHz;
+
+GPIO_Init(GPIOA,&GPIO_InitStruct);
+
+//配置OC1的参数
+TIM_OCInitTypeDef TIM_OCInitStruct = {0};
+
+TIM_OCInitStruct.TIM_OCMode  = TIM_OCMode_PWM1;//模式PWM1
+TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;//高极性
+TIM_OCInitStruct.TIM_OutputState = ENABLE;//使能
+TIM_OCInitStruct.TIM_Pulse = 0;//CCR寄存器的初始值
+
+TIM_OC1Init(TIM3,&TIM_OCInitStruct);
+
+//使能MOE
+TIM_CtrlPWMOutputs(TIM3,ENABLE);
+```
+
+**第 3 步：使能 CCR 寄存器的预加载**
+
+```c
+//#3.使能CCRx的预加载
+TIM_CCPreloadControl(TIM3,ENABLE);
+```
+
+### 46.3 TIM1 的配置（输入捕获）
+
+TIM1 负责测量 TIM3 输出的 PWM，配置同样分三步：
+
+**第 1 步：配置时基单元**
+
+```c
+//#1.配置时基单元
+//1.1开启定时器1的时钟
+RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);
+
+//1.2配置时基单元的参数
+TIM_TimeBaseInitTypeDef TIM_InitStruct;
+TIM_InitStruct.TIM_Prescaler = 71;//分频器系数
+TIM_InitStruct.TIM_Period = 65535;//计数重置（ARR）
+TIM_InitStruct.TIM_CounterMode = TIM_CounterMode_Up;//向上计数
+TIM_InitStruct.TIM_RepetitionCounter = 0;//重复计数
+
+TIM_TimeBaseInit(TIM1,&TIM_InitStruct);
+
+//1.3开启ARR的预加载
+TIM_ARRPreloadConfig(TIM1,ENABLE);
+//1.4闭合时基单元的总开关
+TIM_Cmd(TIM1,ENABLE);
+```
+
+**第 2 步：初始化两个输入捕获引脚**
+
+![PWM输入捕获设置](./11.10/PWM输入捕获设置.jpg)
+
+> **输入捕获配置**：PA8 配置为下拉输入（IPD）用于接收 PWM 信号。CH1 捕获上升沿（直接模式）、CH2 捕获下降沿（间接模式，信号来自 CH1），这样一次波形就能同时测出周期和占空比。
+
+```c
+//#2.初始化输入捕获
+//2.1初始化PA8引脚 IPD
+RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+
+GPIO_InitTypeDef GPIO_InitStruct;
+GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
+GPIO_InitStruct.GPIO_Mode  =  GPIO_Mode_IPD;
+
+GPIO_Init(GPIOA,&GPIO_InitStruct);
+
+//初始化输入捕获通道1
+TIM_ICInitTypeDef TIM_ICInitStruct;
+
+TIM_ICInitStruct.TIM_Channel = TIM_Channel_1;//通道
+TIM_ICInitStruct.TIM_ICFilter = 0;//滤波器
+TIM_ICInitStruct.TIM_ICPolarity = TIM_ICPolarity_Rising;//捕获边沿
+TIM_ICInitStruct.TIM_ICPrescaler = TIM_ICPSC_DIV1;//分频器-1分频
+TIM_ICInitStruct.TIM_ICSelection = TIM_ICSelection_DirectTI;//选择模式-直接
+
+TIM_ICInit(TIM1,&TIM_ICInitStruct);
+
+//初始化输入捕获通道2
+TIM_ICInitStruct.TIM_Channel = TIM_Channel_2;
+TIM_ICInitStruct.TIM_ICFilter = 0;//滤波器
+TIM_ICInitStruct.TIM_ICPolarity = TIM_ICPolarity_Falling;//捕获下降沿
+TIM_ICInitStruct.TIM_ICPrescaler = TIM_ICPSC_DIV1;//分频器-1分频
+TIM_ICInitStruct.TIM_ICSelection = TIM_ICSelection_IndirectTI;//模式-间接
+
+TIM_ICInit(TIM1,&TIM_ICInitStruct);
+```
+
+**第 3 步：配置从模式的输入来源**
+
+```c
+//#3.从模式选择输入来源
+TIM_SelectInputTrigger(TIM1,TIM_TS_TI1FP1);//从模式选择TIM1的TI1FP1作为来源
+TIM_SelectSlaveMode(TIM1,TIM_SlaveMode_Reset);//选择TRGI（从模式）的模式
+```
+
+> **从模式关键库函数**：
+> - `TIM_SelectInputTrigger()`：选择从模式的输入触发来源（这里选 TI1FP1，即通道 1 滤波后的信号）
+> - `TIM_SelectSlaveMode()`：选择 TRGI 的模式（这里选 Reset 复位模式，每次捕获到上升沿就把 CNT 清零，便于计算周期）
+
+### 46.4 测量 PWM 信号
+
+>重点：PWMI 模式下 Trigger 标志位在每次复位时置位，一次触发即可测出周期和占空比
+
+`Trigger` 标志位和 `Trigger` 事件：当从模式控制器收到触发信号（TI1FP1 上升沿）时产生 Trigger 事件，同时把 CNT 清零复位。代码里通过查询 `TIM_FLAG_Trigger` 标志位来等待一个完整周期。
+
+测量 PWM 参数实现代码：
+
+```c
+//#1.清除Trigger标志位
+TIM_ClearFlag(TIM1,TIM_FLAG_Trigger);
+
+//#2.等待Trigger标志位从0变成1
+while(TIM_GetFlagStatus(TIM1,TIM_FLAG_Trigger) == RESET);
+
+//#3.计算
+uint16_t ccr1 = TIM_GetCapture1(TIM1);//读取输入捕获寄存器的值
+uint16_t ccr2 = TIM_GetCapture2(TIM1);
+
+float Period = ccr1 * 1.0e-6f * 1.0e3f;
+float duty = (float)ccr2 / ccr1 * 100.0f;
+
+My_USART_Printf(USART1,"周期 = %.3fms,占空比 = %.2f%%\r\n",Period,duty);
+```
+
+> **计算说明**：
+> - `ccr1` = CH1 捕获的上升沿计数值（即一个完整周期的计数值）
+> - `ccr2` = CH2 捕获的下降沿计数值（即高电平持续时间的计数值）
+> - 周期 = `ccr1 × 1μs × 1000`（单位 ms），因为计数频率 1MHz、每个计数 = 1μs
+> - 占空比 = `ccr2 / ccr1 × 100%`
+
+### 46.5 实验整体思路
+
+![PWMI实验整体思路](./11.10/PWMI实验整体思路.jpg)
+
+> **思路**：TIM3 产生 1kHz、占空比 20% 的 PWM，从 PA6 输出；用杜邦线把 PA6 接到 PA8，由 TIM1 的 PWMI 模式（CH1 捕上升沿、CH2 捕下降沿）捕获；主循环读 CCR1/CCR2 算出周期和占空比后串口打印。
+
+![PWM测量实验效果](./11.10/PWM测量实验效果.jpg)
+
+> **实验效果**：串口实时打印出「周期 = 1.000ms，占空比 = 20.00%」，与 TIM3 的设定值完全一致，验证测量准确。
+
+---
+
+# 九、ADC 模数转换
+
+## 47. ADC 模块
+
+> 终于结束了较难的定时器篇章，开启 ADC 的学习。
+
+### 47.1 ADC 是什么
+
+>重点：ADC 把连续的模拟量转换成离散的数字量，是模拟世界和数字世界的桥梁
+
+ADC（Analog-to-Digital Converter，模数转换器）是把**模拟信号**（连续变化的电压）转换成**数字信号**（一串 0 和 1 的二进制数）的器件。
+
+![模拟信号与数字信号](./11.10/模拟信号与数字信号.jpg)
+
+> **模拟信号 vs 数字信号**：
+> - **模拟信号**：连续变化，任意时刻都有值（如温度、光线、声音的电压波形）
+> - **数字信号**：离散的，只有有限的几个值（如 0/1 组成的二进制数）
+> - ADC 做的事就是「采样 + 量化」：每隔一段时间量一次模拟信号的大小，把它变成一个数字。
+
+![ADC](./11.10/ADC.jpg)
+
+> **STM32 上的 ADC**：STM32F103 系列有 3 个 ADC（ADC1/ADC2/ADC3），精度都是 12 位。ADC1 和 ADC2 各有 16 个外部通道，ADC3 一般有 8 个外部通道。可以把外部引脚上的模拟电压量转换成 0~4095 的数字值。
+
+![ADC的类型](./11.10/ADC的类型.jpg)
+
+> **ADC 的类型**：常见的有逐次逼近型（SAR）、积分型、∑-Δ（Sigma-Delta）型、流水线型等。STM32 内置的是**逐次逼近型**，它在速度、精度、成本之间取得平衡，最常用于单片机。
+
+### 47.2 ADC——12 位逐次逼近型
+
+>重点：12 位分辨率决定测量精度，逐次逼近型决定转换速度
+
+**12 位 = 采样深度（分辨率）**
+
+![采样深度](./11.10/采样深度.jpg)
+
+> **采样深度**：12 位表示转换结果用 12 个二进制位表示，范围 0~4095（2^12 = 4096）。采样深度是衡量 ADC 性能最重要的指标之一——位数越多，能分辨的电压越细，测量结果与实际结果的误差越小。
+
+**逐次逼近型（SAR）**
+
+![逐次逼近型ADC](./11.10/逐次逼近型ADC.jpg)
+
+> **逐次逼近型原理**：类似于天平称重。先从最大砝码（最高位）开始试，如果太重就拿掉、太轻就保留，逐位逼近，直到两边平衡。逐次逼近型 ADC 也是从最高位到最低位一位一位比较，n 位只需 n 次比较就能完成转换，速度快。
+
+![ADC模块的内部框架](./11.10/ADC模块的内部框架.jpg)
+
+> **逐次逼近型内部结构**：核心是 DAC（数模转换器）+ 比较器 + 逐次逼近寄存器（SAR）。SAR 先输出一个猜测值给 DAC 转成电压，比较器判断这个电压与输入电压的大小，再调整 SAR 的值，反复逼近直到两者相等。
+
+### 47.3 采样保持电路的详解
+
+![采样保持电路](./11.10/采样保持电路.jpg)
+
+> **采样保持电路**：ADC 转换需要一段时间，而输入信号在这段时间里可能变化，所以需要一个「采样保持电路」——采样阶段先给内部电容充电（把输入电压「记住」），保持阶段断开开关、用电容上存储的电压进行转换。这样转换期间电压是稳定的。
+
+## 48. ADC 模块的结构框图
+
+### 48.1 ADC 的多路复用
+
+![ADC重映像](./11.10/ADC重映像.jpg)
+
+> **多路复用**：STM32 的 ADC 只有一套转换核心，却要采集很多个通道（PA0~PA7、PB0~PB1 等）。通过内部的多路复用开关，让各个通道「轮流」接到转换核心上，一次只转换一个通道。这就是「多路复用」——多个输入共用一个转换器，靠开关切换。
+
+### 48.2 常规序列
+
+![常规序列作用](./11.10/常规序列作用.jpg)
+
+> **常规序列（规则组）**：类似于一张「待办清单」，上面记录了需要执行转换的通道及顺序。外部触发复用器每收到一个触发信号，就按清单顺序执行一次转换。最多可以安排 16 个通道。
+
+### 48.3 注入序列
+
+>重点：注入序列优先级高于常规序列，可以「插队」打断正在进行的常规转换
+
+![注入序列与常规序列的区别](./11.10/注入序列与常规序列的区别.jpg)
+
+> **注入序列 vs 常规序列**：常规序列是「正常排队办事」，注入序列是「紧急插队」。当注入序列被触发时，会打断正在执行的常规转换，先处理注入序列，处理完再回到常规序列继续。
+
+![注入序列的优先级](./11.10/注入序列的优先级.jpg)
+
+> **注入序列的优先级**：注入序列比常规序列优先级更高，最多可配置 4 个通道。典型应用是「定时触发」——用定时器的 TRGO 触发注入序列，实现精确的定时采样（如第 51 章实验）。
+
+**常规序列 vs 注入序列对比**：
+
+| 对比项 | 常规序列 | 注入序列 |
+| --- | --- | --- |
+| 通道数 | 最多 16 个 | 最多 4 个 |
+| 优先级 | 低（正常排队） | 高（可以插队） |
+| 转换结果存放 | DR 寄存器 | JDR1~JDR4 寄存器 |
+| 完成标志位 | EOC | JEOC |
+| 典型用途 | 常规轮询采集 | 定时精确采样、紧急事件 |
+| 触发方式 | 软件/外部触发 | 外部触发（如 TIM TRGO） |
+
+---
+
+## 49. ADC——采样时间和转换时间
+
+### 49.1 ADC 的时钟频率
+
+>重点：ADC 时钟最大不能超过 14MHz，需由 PCLK2 分频得到
+
+![ADC的时钟频率](./11.10/ADC的时钟频率.jpg)
+
+> **ADC 时钟来源**：ADC 的时钟 ADCCLK 由 APB2 总线的 PCLK2（最高 72MHz）经过分频得到。根据资料显示，STM32F103 的 ADC 模块**最大时钟频率不能超过 14MHz**，所以 72MHz 的 PCLK2 必须至少 6 分频（72/6 = 12MHz）才能满足要求。
+
+![ADC分频器系数设置库函数](./11.10/ADC分频器系数设置库函数.jpg)
+
+> **分频器设置库函数**：`RCC_ADCCLKConfig(RCC_PCLK2_Div6)` 设置 ADC 时钟为 PCLK2 的 6 分频。可选分频系数有 2、4、6、8 分频。
+
+**ADC 分频器系数选项**（PCLK2 = 72MHz 时）：
+
+| 分频系数 | 库函数参数 | ADCCLK 频率 |
+| --- | --- | --- |
+| 2 分频 | `RCC_PCLK2_Div2` | 36MHz（超 14MHz，不可用） |
+| 4 分频 | `RCC_PCLK2_Div4` | 18MHz（超 14MHz，不可用） |
+| 6 分频 | `RCC_PCLK2_Div6` | 12MHz（常用） |
+| 8 分频 | `RCC_PCLK2_Div8` | 9MHz |
+
+### 49.2 转换时间的计算
+
+![转换时间的计算](./11.10/转换时间的计算.jpg)
+
+> **转换时间公式**：`TCONV = 采样时间 + 12.5 个周期`。其中 12.5 个周期是 12 位逐次逼近转换本身固定需要的时钟周期，采样时间则由软件配置。
+
+![采样时间与转换时间](./11.10/采样时间与转换时间.jpg)
+
+> **采样时间与转换时间**：一次完整的 A/D 转换 = 「采样阶段」（给采样电容充电）+ 「转换阶段」（逐次逼近）。采样时间可选 1.5、7.5、13.5、28.5、41.5、55.5、71.5、239.5 个周期（共 8 档）。
+
+**采样时间 8 档选项**（库函数枚举值）：
+
+| 采样周期 | 库函数枚举 | 典型适用场景 |
+| --- | --- | --- |
+| 1.5 周期 | `ADC_SampleTime_1Cycles5` | 内阻极小的信号源 |
+| 7.5 周期 | `ADC_SampleTime_7Cycles5` | 低内阻信号源 |
+| 13.5 周期 | `ADC_SampleTime_13Cycles5` | 常规信号源（最常用） |
+| 28.5 周期 | `ADC_SampleTime_28Cycles5` | 中内阻信号源 |
+| 41.5 周期 | `ADC_SampleTime_41Cycles5` | 较高内阻信号源 |
+| 55.5 周期 | `ADC_SampleTime_55Cycles5` | 高内阻信号源 |
+| 71.5 周期 | `ADC_SampleTime_71Cycles5` | 高内阻信号源 |
+| 239.5 周期 | `ADC_SampleTime_239Cycles5` | 极高内阻信号源（如分压电路） |
+
+### 49.3 采样时间和信号源内阻的关系
+
+![采样时间](./11.10/采样时间.jpg)
+
+> **内阻与采样时间的关系**：信号源内阻越大，采样电容充满电需要的时间越长，所以需要的采样时间也越长。如果采样时间太短，电容还没充满就进入保持阶段，采到的电压就会偏低，产生误差。
+
+### 49.4 信号源内阻的计算
+
+> **光敏传感器模块**：光敏传感器的内阻会随光照强度变化，是一个典型的「高内阻信号源」，因此采样时间需要设置得足够长。
+
+![戴维南等效定理](./11.10/戴维南等效定理.jpg)
+
+> **戴维南等效定理**：任何一个含源线性网络都可以等效成一个「理想电压源 + 串联电阻」。用来计算信号源的等效内阻——把光敏传感器电路等效成电压源串内阻，从而估算采样时间。
+
+![光敏传感器的电压变化](./11.10/光敏传感器的电压变化.jpg)
+
+> **光敏传感器的电压变化**：光敏电阻与固定电阻分压，光照越强、光敏电阻阻值越小，分到的电压越低（或越高，取决于接法）。ADC 采集这个电压变化，就能反推出光照强度。
+
+### 49.5 采样时间的计算
+
+![计算采样时间公式](./11.10/计算采样时间公式.jpg)
+
+> **采样时间计算公式**：根据 RC 充电原理，采样时间需满足 `T采样 ≥ (R源 + R内部) × C采样 × 若干倍时间常数`，保证电容充电到接近输入电压。
+
+![采样时间计算](./11.10/采样时间计算.jpg)
+
+> **公式中的参数**：
+> - `R源`：信号源的等效内阻（戴维南等效得到）
+> - `R内部`：ADC 内部采样开关和通道电阻（手册给出典型值）
+> - `C采样`：ADC 内部采样电容（手册给出典型值）
+> - 实际工程中通常直接取较大的采样时间（如 13.5 或 28.5 周期）来保证精度。
+## 50. ADC——常规单通道转换
+
+### 50.1 思路
+
+![光敏传感器](./11.10/光敏传感器.jpg)
+
+> **光敏传感器**：利用光敏电阻（光照越强阻值越小）与固定电阻分压，把光照强度转成电压信号，再由 ADC 采集。本实验用 ADC 常规序列（软件触发）单通道采集光敏传感器电压，根据电压值控制板载 LED 亮灭。
+
+### 50.2 接线图
+
+![光敏传感器的接线图](./11.10/光敏传感器的接线图.jpg)
+
+> **光敏传感器接线图**：光敏传感器模块输出端接 PA0（ADC 通道 0），VCC 接 3.3V、GND 接地。
+
+![光敏传感器实验接线图](./11.10/光敏传感器实验接线图.jpg)
+
+> **实验接线图**：PA0 接光敏传感器输出，PC13 接板载 LED（低电平点亮）。
+
+### 50.3 开始写代码
+
+#### 50.3.1 设置 ADC 模块时钟
+
+	//#2.配置ADC模块时钟
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6); //ADC模块的分频器系数-六分频
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
+
+> **时钟配置**：先设置 ADC 分频（6 分频 → 12MHz，< 14MHz），再开启 ADC1 外设时钟。
+
+#### 50.3.2 ADC 模块的编程接口（库函数）
+
+![ADC编程接口（库函数）](./11.10/ADC编程接口（库函数）.jpg)
+
+> **ADC 库函数接口**：标准外设库提供一套 ADC 配置函数——`ADC_Init()` 初始化基本参数、`ADC_RegularChannelConfig()` 配置常规序列、`ADC_SoftwareStartConvCmd()` 软件启动转换、`ADC_GetConversionValue()` 读取转换结果等。
+
+#### 50.3.3 两个标志位
+
+> **EOC（End Of Conversion）**：常规序列转换完成标志，转换完成后由 0 变 1。
+> **JEOC（Injected End Of Conversion）**：注入序列转换完成标志，转换完成后由 0 变 1。
+
+![对齐方式差异](./11.10/对齐方式差异.jpg)
+
+> **左右对齐区别**：ADC 转换结果是 12 位，但要放到 16 位的数据寄存器（DR）里。右对齐 = 12 位数据靠右（高位补 0），左对齐 = 12 位数据靠左（低位补 0）。读数值时通常用右对齐，直接读就是 0~4095 的转换值。
+#### 50.3.4 初始化 ADC 模块
+
+![ADC初始化参数](./11.10/ADC初始化参数.jpg)
+
+	//#3.初始化ADC的基本参数
+	ADC_InitTypeDef ADC_InitStruct;
+	
+	ADC_InitStruct.ADC_ContinuousConvMode = DISABLE; //连续模式的开关
+	ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;//对齐方式（左/右） -右对齐
+	ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;//外部触发设置 - 软件启动 
+	ADC_InitStruct.ADC_Mode = ADC_Mode_Independent;//双ADC模式设置 - 独立模式
+	ADC_InitStruct.ADC_NbrOfChannel =1; //设置常规序列的通道数 - 常规序列一个通道
+	ADC_InitStruct.ADC_ScanConvMode = DISABLE; //扫描模式的开关	
+	ADC_Init(ADC1,&ADC_InitStruct);
+
+> **初始化参数说明**：
+> - `ADC_ContinuousConvMode`：连续转换模式开关（单次转换关掉）
+> - `ADC_DataAlign`：数据对齐方式（右对齐）
+> - `ADC_ExternalTrigConv`：常规序列外部触发方式（None = 软件启动）
+> - `ADC_Mode`：双 ADC 模式（Independent = 独立模式）
+> - `ADC_NbrOfChannel`：常规序列通道数量（1 个）
+> - `ADC_ScanConvMode`：扫描模式开关（单通道关掉）
+
+#### 50.3.5 配置常规序列
+
+	//#4.配置常规序列
+	ADC_RegularChannelConfig(ADC1,ADC_Channel_0,1,ADC_SampleTime_13Cycles5);//通道0，第一列，13.5倍周期
+	ADC_ExternalTrigConvCmd(ADC1,ENABLE);//外部触发开关
+
+> **常规序列配置**：`ADC_RegularChannelConfig()` 的参数依次是：ADC 名称、通道号、在序列中的位置（第 1 列）、采样时间（13.5 周期）。最后使能外部触发。
+
+#### 50.3.6 实验实现
+
+			//#1.清除EOC标志位
+			ADC_ClearFlag(ADC1,ADC_FLAG_EOC);
+			
+			//#2.软件启动方式发送脉冲
+			ADC_SoftwareStartConvCmd(ADC1,ENABLE);
+			
+			//#3.等待常规序列转换完成
+			while (ADC_GetFlagStatus(ADC1,ADC_FLAG_EOC) == RESET);
+			
+			//#4.读取DR寄存器的值
+			uint16_t dr = ADC_GetConversionValue(ADC1);
+			
+			//#5.转换成电压值
+			float U = dr* (3.3f/4095);//采样深度为12位，所以最大为4095			
+			
+			//电压控制板载LED
+			if(U > 1.5)
+			{
+				GPIO_WriteBit(GPIOC,GPIO_Pin_13,Bit_RESET);//点亮
+			}
+			else
+			
+			{	
+				GPIO_WriteBit(GPIOC,GPIO_Pin_13,Bit_SET);//熄灭
+			}
+
+> **实验流程说明**：先清除 EOC 标志位 → 软件启动转换 → 等待 EOC 置 1 → 读 DR 寄存器 → 换算成电压 → 与 1.5V 阈值比较控制 LED。
+
+> **实验总结**：这个实验比较简单，主要是 ADC 模块的配置。通过光敏传感器检测光照强度——光强时电压高，关闭 LED；光弱时电压低，点亮 LED。
+
+---
+
+## 51. 定时器触发（注入序列）
+
+### 51.1 接线图
+
+> **接线**：光敏传感器输出接 PA0（ADC 通道 0），串口 PA9 用于打印结果，TIM1 的 TRGO 作为注入序列的触发源。
+
+### 51.2 初始化 USART1
+	//#1.初始化IO引脚 PA9 AF_PP
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+	
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStruct.GPIO_Speed =GPIO_Speed_2MHz;
+	
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
+	
+	//#2.开启USART1的时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1,ENABLE);
+	
+	//#3.配置串口的参数
+	USART_InitTypeDef USART_InitStruct = {0};
+	
+	USART_InitStruct.USART_BaudRate = 115200;//波特率
+	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//数据流控-不开启
+	USART_InitStruct.USART_Mode = USART_Mode_Tx;//通信方式
+	USART_InitStruct.USART_Parity = USART_Parity_No;//奇偶校验 - 不校验
+	USART_InitStruct.USART_StopBits = 1;//停止位
+	USART_InitStruct.USART_WordLength = 8;//数据位
+	
+	USART_Init(USART1,&USART_InitStruct);
+	
+	//#4.闭合总开关
+	USART_Cmd(USART1,ENABLE);
+### 51.3 配置 TIM（定时器）
+
+![光敏传感器实验定时器设置](./11.10/光敏传感器实验定时器设置.jpg)
+
+> **定时器设置**：TIM1 的 PSC=71、ARR=999 → 1ms 定时周期。关键是把 TRGO 设为 Update 模式（`TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update)`），这样定时器每次溢出更新时输出一个触发信号给 ADC。
+
+	//#1.开启时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);
+	
+	//#2.配置时基单元
+	TIM_TimeBaseInitTypeDef TIM_InitStruct = {0};
+	
+	TIM_InitStruct.TIM_CounterMode =TIM_CounterMode_Up;//向上计数
+	TIM_InitStruct.TIM_Period = 999;//计数重置（ARR）-定时周期
+	TIM_InitStruct.TIM_Prescaler = 71;//分频器设置71
+	TIM_InitStruct.TIM_RepetitionCounter = 0;//重复计数器 - 不重复
+	
+	TIM_TimeBaseInit(TIM1,&TIM_InitStruct);
+	
+	//#3.TRGO：Update模式
+	TIM_SelectOutputTrigger(TIM1,TIM_TRGOSource_Update);
+	
+	//#4.开启定时器
+	TIM_Cmd(TIM1,ENABLE);
+### 51.4 注入序列的编程接口（库函数）
+
+![注入序列相关库函数](./11.10/注入序列相关库函数.jpg)
+
+> **注入序列库函数**：
+> - `ADC_InjectedSequencerLengthConfig()`：设置注入序列长度
+> - `ADC_ExternalTrigInjectedConvConfig()`：选择注入序列外部触发来源
+> - `ADC_InjectedChannelConfig()`：配置注入序列的通道清单
+> - `ADC_GetInjectedConversionValue()`：读取注入序列转换结果（JDR 寄存器）
+
+### 51.5 初始化 ADC（注入序列）
+	//#1.初始化PA0
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+	
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AIN;//模拟模式
+	
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
+	
+	//#2.配置分频器的分频系数（6分频）
+	//配置ADC1的时钟
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6);
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
+	
+	//#3.配置ADC的基本参数
+	ADC_InitTypeDef ADC_InitStruct;
+	
+	ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;//连续模式关
+	ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;//对齐方式- 右对齐
+	ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;//常规序列的外部触发信号选择 - 软件触发
+	ADC_InitStruct.ADC_Mode = ADC_Mode_Independent;//双ADC模式 - 独立模式
+	ADC_InitStruct.ADC_NbrOfChannel = 1;  //常规序列通道数
+	ADC_InitStruct.ADC_ScanConvMode = DISABLE;//扫描模式开关
+	
+	ADC_Init(ADC1,&ADC_InitStruct);
+	
+	//#4.配置注入序列的额外参数
+	ADC_InjectedSequencerLengthConfig(ADC1,1);// 注入序列的长度
+	
+	ADC_ExternalTrigInjectedConvConfig(ADC1,ADC_ExternalTrigInjecConv_T1_TRGO);//配置注入序列外部触发来源
+	
+	ADC_ExternalTrigConvCmd(ADC1,ENABLE);//闭合注入序列的开关
+	
+	ADC_InjectedChannelConfig(ADC1,ADC_Channel_0,1,ADC_SampleTime_13Cycles5);//配置注入序列的清单
+	
+	//#5.闭合ADC的总开关
+	ADC_Cmd(ADC1,ENABLE);
+
+### 51.6 读取并发送测量结果
+
+			//#1.等待注入序列转换完成
+			while(ADC_GetFlagStatus(ADC1,ADC_FLAG_JEOC) == RESET);
+			
+			//#2.读取转换的结果
+			uint16_t  jdr = ADC_GetInjectedConversionValue(ADC1,ADC_InjectedChannel_1);//获取通道JDR1结果
+			
+			//#3.清除JEOC标志位
+			ADC_ClearFlag(ADC1,ADC_FLAG_JEOC);
+			
+			//#4.结果转换成电压
+			float voltage = jdr * (3.3f / 4095);
+			
+			//#5.通过串口把结果发送出去
+			My_USART_Printf(USART1,"%.3f\n",voltage);
+
+---
+
+## 52. ADC——扫描模式
+
+>重点：扫描模式让 ADC 能依次扫描常规序列清单里的多个通道
+
+**作用**：使能 ADC 同时对多路信号进行扫描的能力。不开启时默认只对第一个通道执行；开启后会扫描常规序列清单的所有内容，依次执行。
+
+### 52.1 电位器（滑动变阻器）
+
+![电位器（滑动变阻器）](./11.10/电位器（滑动变阻器）.jpg)
+
+> **电位器（滑动变阻器）**：高中物理经常用到——三个引脚，两端是固定电阻，中间是滑动触点。旋转旋钮改变滑动触点位置，就能在中间引脚得到 0~VCC 之间的连续电压，非常适合用来给 ADC 做可调输入。
+
+> **本实验**：电位器中间抽头接 PA0（通道 0）、另一个抽头接 PA1（通道 1），开启扫描模式，让 ADC 依次采集两路电压并通过串口打印。
+
+### 52.2 接线图
+
+![电位器实验接线图](./11.10/电位器实验接线图.jpg)
+
+> **电位器接线图**：电位器两端接 3.3V 和 GND，两个中间抽头分别接 PA0、PA1，用于扫描模式采集两路模拟电压。
+
+### 52.3 写代码
+
+#### 52.3.1 初始化 USART1
+	//#1，初始化PA9 AF_PP
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+	
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+	
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
+	
+	//#2.初始化USART参数
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1,ENABLE);
+	
+	USART_InitTypeDef USART_InitStruct;
+	
+	USART_InitStruct.USART_BaudRate = 115200;//波特率 
+	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//无数据流控
+	USART_InitStruct.USART_Mode = USART_Mode_Tx;//通信方式 - 发数据
+	USART_InitStruct.USART_Parity = USART_Parity_No;//奇偶校验无
+	USART_InitStruct.USART_StopBits = USART_StopBits_1;//停止位 - 1
+	USART_InitStruct.USART_WordLength = USART_WordLength_8b;//数据位 - 8
+	
+	USART_Init(USART1,&USART_InitStruct);
+	
+	//#3.闭合总开关
+	USART_Cmd(USART1,ENABLE);
+#### 52.3.2 配置定时器 1（TIM1）
+
+![电位器实验定时器设置](./11.10/电位器实验定时器设置.jpg)
+
+> **定时器设置**：TIM1 时基单元配置（PSC=71、ARR=999 → 1ms 定时），TRGO 设为 Update 模式作为注入序列的触发源。
+
+	//#1.开启定时器1的时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);
+	
+	//#2.配置时基单元的参数
+	TIM_TimeBaseInitTypeDef TIM_InitStruct;
+	
+	TIM_InitStruct.TIM_CounterMode = TIM_CounterMode_Up;//向上计数
+	TIM_InitStruct.TIM_Period = 71;//分频器系数 - 71
+	TIM_InitStruct.TIM_Prescaler = 999;//重置计数（ARR） - 999
+	TIM_InitStruct.TIM_RepetitionCounter = 0;//重复计数次数(RCR) - 0；
+	
+	TIM_TimeBaseInit(TIM1,&TIM_InitStruct);
+	
+	//#3.开启ARR的预加载
+	TIM_ARRPreloadConfig(TIM1,ENABLE);
+	
+	//#4.配置从模式控制器-将TRGO设置为Update模式
+	TIM_SelectOutputTrigger(TIM1,TIM_TRGOSource_Update);
+	
+	//#5.闭合TIM1的总开关
+	TIM_Cmd(TIM1,ENABLE);
+#### 52.3.3 配置 ADC1
+	//#1.初始化IO引脚 PA0 PA1 -- AIN
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+	GPIO_InitTypeDef GPIO_InitStruct;
+	//PA0
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AIN;
+	
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
+	//PA1
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AIN;
+	
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
+	
+	//#2.设置ADC分频器系数-6分频
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6);
+	//开启ADC时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
+	
+	//#3.初始化ADC1的基本参数
+	ADC_InitTypeDef ADC_InitStruct;
+	ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;//连续模式
+	ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;//对齐方式- 右对齐
+	//常规序列外部触发方式-由于用的注入序列，随便写的软件触发
+	ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_InitStruct.ADC_Mode = ADC_Mode_Independent;//双ADC模式 - 独立模式
+	ADC_InitStruct.ADC_NbrOfChannel = 1;//常规序列通道数量 - 清单数量1
+	ADC_InitStruct.ADC_ScanConvMode = ENABLE;//扫描模式开
+	
+	ADC_Init(ADC1,&ADC_InitStruct);
+	
+	//#4.配置注入序列参数
+	ADC_InjectedSequencerLengthConfig(ADC1,2);//注入序列的长度 - 2个通道
+	//注入序列清单设置        ADC名称   通道编号  写到第几行    周期
+	ADC_InjectedChannelConfig(ADC1,ADC_Channel_0,1,ADC_SampleTime_13Cycles5);
+	ADC_InjectedChannelConfig(ADC1,ADC_Channel_1,2,ADC_SampleTime_13Cycles5);
+	//选择注入序列的外部触发  - 选择定时器1的TRGO
+	ADC_ExternalTrigInjectedConvConfig(ADC1,ADC_ExternalTrigInjecConv_T1_TRGO);
+	//闭合注入序列外部触发的开关
+	ADC_ExternalTrigConvCmd(ADC1,ENABLE);
+	
+	//#5. 闭合ADC的总开关
+	ADC_Cmd(ADC1,ENABLE);	
+#### 52.3.4 读出并测量值
+			//#1.等待注入序列转换完成 - JEOC
+			while(ADC_GetFlagStatus(ADC1,ADC_FLAG_JEOC) == RESET);
+			
+			//#2.读出转换结果
+			uint16_t jdr1 = ADC_GetInjectedConversionValue(ADC1,ADC_InjectedChannel_1);
+			uint16_t  jdr2 = ADC_GetInjectedConversionValue(ADC1,ADC_InjectedChannel_2);
+			
+			//#3.计算电压
+			float v1,v2;
+			v1 = jdr1 * (3.3f/4095);
+			v2 = jdr2 * (3.3f/4095);
+			
+			//#4.把结果通过串口发送出去
+			My_USART_Printf(USART1,"%.3f,%.3f\n",v1,v2);
+
+> **扫描模式要点**：本实验中 `ADC_ScanConvMode = ENABLE` 开启了扫描模式，注入序列清单里安排了 2 个通道（PA0、PA1）。每收到一次 TIM1 的 TRGO 触发，ADC 就依次扫描这 2 个通道，转换完成后读取 JDR1、JDR2 得到两路电压。
+>
+> **实验效果**：旋转电位器，串口打印的 v1、v2 会随之变化，验证了 ADC 扫描模式同时采集多路模拟信号的能力。8
+至此，铁头山羊的课程已经全部学习完毕了，只能说铁头牛逼，虽然很多东西有些啰嗦，但是这视频毕竟可以0基础看懂，我只能说铁头山羊牛逼，让我理解的非常透彻。
+
+接下来，我就要开始着手学习 FreeRTOS 的内容了，但是 STM32 还有一部分内容铁头山羊没有讲到，但是我会去学习，就比如 DMA、WDG 以及 FSMC 和 LCD。
+
+---
+
+# 11月15日
+
+# 十、DMA、FSMC、LCD 与看门狗
+
+## 53. DMA——直接存储器存取（访问）
+
+>重点：DMA 让外设和存储器之间「绕过 CPU」直接高速传输数据
+
+**作用**：用于提供外设和存储器之间的高速数据传输，无需 CPU 的干预，节省 CPU 的资源。
+
+可以把 CPU 想象成一个「忙碌的老板」：没有 DMA 时，每一次数据搬运都要老板亲自跑一趟（读数据、写数据）；有了 DMA，就像雇了一个「专职搬运工」，老板只需下指令，搬运工就自动把数据从源头搬到目的地，老板可以腾出手去干别的活。
+
+### 53.1 仲裁器
+
+>重点：仲裁器协调多个 DMA 通道的优先级，分软件阶段和硬件阶段
+
+类似于中断里面的 NVIC 模块，用于协调优先级顺序。当一个时刻有多个 DMA 通道同时请求传输时，仲裁器决定先处理谁。仲裁分两个阶段：
+
+| 阶段 | 依据 | 说明 |
+| --- | --- | --- |
+| 软件阶段 | CCRx 寄存器中的 PL 位 | 可设置 4 个等级：非常高、高、中、低（与定时器中的 CCRx 寄存器不同） |
+| 硬件阶段 | 通道编号 | 若两个及以上通道软件优先级相同，则编号小的通道优先 |
+
+> **为什么需要两个阶段**：软件阶段让你「人工指定」谁更重要；但光靠软件，当大家优先级一样时就分不出先后了，于是硬件阶段用「通道编号小者优先」作为兜底规则，保证任何时刻都能唯一决出胜负。
+
+### 53.2 DMA 框图
+
+![DMA框图](./11.15/DMA框图.jpg)
+
+> **DMA 框图关键名词**：
+> - **AHB 从设备接口**：CPU 通过它来「配置」DMA（写寄存器），DMA 接在时钟树的高速总线（AHB）上面，和 CM3 内核是同一个总线。
+> - **AHB 主设备接口**：DMA 通过它来「搬运」数据（读源地址、写目的地址），这是 DMA 真正干活的通道。
+> - **通道（Channel）**：每个通道对应一个外设的请求，STM32F103 的 DMA1 有 7 个通道。
+> - **仲裁器（Arbiter）**：当多个通道同时请求时，按优先级仲裁先后。
+
+### 53.3 周期挪用（周期窃取）
+
+> **周期挪用**：DMA 和 CPU 共用同一条 AHB 总线，总线一个时刻只能被一个主人使用。当 DMA 和外设之间有数据传输时，DMA 会「借」用 CPU 的访存周期来搬运数据——就像从 CPU 手里「偷」几个总线周期，所以叫「周期挪用」。这种借用在 CPU 不访问总线的空档进行，对 CPU 影响很小，但实现了数据的持续搬运。
+
+### 53.4 DMA 请求
+
+外设想要通过 DMA 传输数据，需要向 DMA 控制器发送 DMA 请求以传输数据。每个外设的 DMA 请求都固定接到某个 DMA 通道上，这个对应关系就叫做「DMA 请求映像」。
+
+![DMA1请求映像](./11.15/DMA1请求映像.png)
+
+> **DMA1 请求映像（STM32F103）**：
+>
+> | 通道 | 对应外设请求 |
+> | --- | --- |
+> | 通道 1 | ADC1 |
+> | 通道 2 | SPI1 接收、USART3 发送 |
+> | 通道 3 | SPI1 发送、USART3 接收、TIM2 更新 |
+> | 通道 4 | USART1 发送、I2C2 发送 |
+> | 通道 5 | USART1 接收、I2C2 接收 |
+> | 通道 6 | TIM1 的 CH1/CH2/CH3 |
+> | 通道 7 | TIM1 更新、TIM2 的 CH2/CH3/CH4 |
+
+![DMA1请求映像图及优先级](./11.15/DMA1请求映像图及优先级.png)
+
+> **请求映像与优先级**：每个通道固定绑定某些外设的请求，不能随意改。当同一通道上的多个外设同时请求时，由外设本身的优先级决定；跨通道的竞争才由仲裁器处理。
+
+### 53.5 ROM 到 RAM
+
+> **ROM 与 RAM 的概念**：
+> - **ROM（只读存储器）**：断电后数据不丢失，用来存放程序代码（烧录进去的程序）。STM32 的 Flash 就是 ROM 的一种。
+> - **RAM（随机存储器）**：断电后数据丢失，用来存放程序运行时产生的变量和数据。
+
+两个存储器之间传输数据需要通过 DMA 总线传输，但**只能从 ROM 传输数据到 RAM**。因为 STM32 的 ROM（Flash）用于写烧录程序，如果反向向里面写数据，会破坏程序代码，容易导致系统崩溃。
+## 54. FSMC 控制器——灵活的静态存储器控制器
+
+>重点：FSMC 把外部静态存储器「映射」成一段内存地址，CPU 像读写内存一样访问它
+
+FSMC（Flexible Static Memory Controller，灵活的静态存储器控制器）可以与 SRAM、ROM、PSRAM、Nor Flash 和 Nand Flash 引脚相连，从而进行数据的交换。FSMC 只能扩展**静态**的内存（即不需要周期刷新的存储器），像 SDRAM 这类需要动态刷新的存储器则要交给升级版的 FMC 控制器。
+
+### 54.1 FSMC 功能框图
+
+![FSMC框图](./11.15/FSMC框图.jpg)
+
+> **FSMC 框图关键名词**：
+> - **AHB 总线接口**：FSMC 挂在 AHB 总线上，负责接收来自 CPU、DMA 的访问请求。
+> - **NOR/PSRAM 控制器**：管理 Bank1，用于接 SRAM、NOR Flash、PSRAM 这类并行存储器。
+> - **NAND/PC Card 控制器**：管理 Bank2~Bank4，用于接 NAND Flash 和 PC Card。
+> - **控制信号（NE、NOE、NWE 等）**：输出片选、读使能、写使能等时序信号，驱动外部存储器工作。
+
+### 54.2 AHB 总线接口
+
+AHB 总线接口用于将 DMA 和 CPU 等高速系统总线（AHB）上面的主要设备访问 FSMC 的通道，负责把 AHB 总线事务转换称为外设通信的协议。简单说，CPU 发出的是一次「内存读写」请求，AHB 接口把它翻译成外部存储器能看懂的一串时序信号。
+
+### 54.3 FSMC 支持的存储器
+
+![FSMC支持的存储器](./11.15/FSMC支持的存储器.png)
+
+> **FSMC 支持的存储器类型**：
+>
+> | 存储器类型 | 特点 | 接在哪个 Bank |
+> | --- | --- | --- |
+> | SRAM | 静态随机存储器，速度快、不需刷新 | Bank1 |
+> | ROM | 只读存储器 | Bank1 |
+> | PSRAM | 伪静态随机存储器，带自刷新 | Bank1 |
+> | NOR Flash | 可按字节随机读，适合存代码、可直接执行 | Bank1 |
+> | NAND Flash | 大容量、按块读写，适合存数据 | Bank2、Bank3 |
+
+### 54.4 FSMC——外部设备地址映射
+
+![FSMC分块](./11.15/FSMC分块.jpg)
+
+> **FSMC 地址映射**：STM32 把从 `0x60000000` 到 `0x9FFFFFFF` 共 1GB 的地址空间划给 FSMC，分成 4 个 Bank，每个 Bank 固定 64MB：
+>
+> | Bank | 地址范围 | 用途 |
+> | --- | --- | --- |
+> | Bank1 | 0x60000000 ~ 0x6FFFFFFF | NOR/PSRAM/SRAM（再分 4 个子区，由 NE1~NE4 片选） |
+> | Bank2 | 0x70000000 ~ 0x7FFFFFFF | NAND Flash |
+> | Bank3 | 0x80000000 ~ 0x8FFFFFFF | NAND Flash |
+> | Bank4 | 0x90000000 ~ 0x9FFFFFFF | PC Card |
+
+> 正是有了这套固定映射，CPU 才能用「读写某个地址」的方式直接操作外部存储器，例如把 LCD 的寄存器挂到 Bank1 的某个地址上，用指针就能驱动屏幕。
+
+### 54.5 FSMC 的模式
+
+FSMC 支持输出多种不同的时序用于控制不同存储器，FSMC 主要有 6 种模式，分别是模式 1、A、2/B、C、D、复用模式，最简单模式的是模式 1。不同存储器对读写时序的要求不同，所以 FSMC 提供了多种可选的时序模式，用来「迁就」不同芯片的时序参数。
+## 55. LCD——液晶显示器
+
+>重点：LCD 的 MCU 模式带显存、RGB 模式靠「显卡」直刷，二者最常用
+
+彩色 LCD 的连接方式一般有这么几种：MCU 模式、RGB 模式、SPI 模式、VSYNC 模式、MDDI 模式和 DSI 模式，其中 MCU 模式和 RGB 模式最常用。
+
+| 连接模式 | 特点 |
+| --- | --- |
+| MCU 模式 | 屏内带 GRAM（显存），MCU 发数据、屏自己刷，适合静态画面，最常用 |
+| RGB 模式 | 靠外部 LCD 控制器（显卡）直接刷 RGB 数据，适合动态/大屏，最常用 |
+| SPI 模式 | 串行接口，引脚少、速度慢 |
+| VSYNC 模式 | 带垂直同步信号，用于视频显示 |
+| MDDI 模式 | 移动显示数字接口，高速串行 |
+| DSI 模式 | 显示串行接口，面向高端显示 |
+
+### 55.1 MCU 模式
+
+对于 MCU 接口的 LCM（LCD Module），LCM 的内部芯片叫做 LCD 驱动器，带 GRAM（显存）。主机发送数据到 LCD 屏中，由 LCM 进行数据转换成 RGB 数据，从而在屏幕上显示，称为 MCU 模式。显示数据比较慢，主要用于显示静态图片或像素点简单的画面。
+
+> **为什么 MCU 模式慢**：MCU 每显示一帧画面，都要把数据一帧一帧地写进屏内的 GRAM，然后由 LCD 驱动器自己去刷新。因为数据要先「搬运」到屏里再显示，中间多了一道工序，所以刷新慢，适合静态画面。
+
+### 55.2 RGB 模式
+
+RGB 模式是大屏采用比较多的模式，主要用于处理动态的图片，或像素点比较多的图片。
+
+主机多出一个模块（LCD 控制器）专门负责处理数据，然后把处理好的数据发送给屏幕显示，这就是显卡的功能。因为有了独立的「显卡」持续不断地往屏幕上刷数据，不需要屏内 GRAM，所以刷新快，适合动态画面。
+
+### 55.3 液晶模块——Z35IT002
+
+![液晶模块](./11.15/液晶模块.jpg)
+
+> **液晶模块关键名词**：
+> - **LCD 面板**：负责显示图像的屏幕本体。
+> - **LCD 驱动器**：屏内集成芯片，负责把收到的数据转换成面板能显示的 RGB 信号。
+> - **GRAM（显存）**：MCU 模式下屏内的显示缓存，存着当前要显示的整帧画面。
+> - **接口排针**：与单片机连接的引脚，MCU 模式下通常通过 FSMC 或并口连接。
+> - **背光**：LCD 本身不发光，需要背光光源照亮屏幕。
+
+## 56. 看门狗——WDG
+
+>重点：看门狗是一个「超时就复位」的特殊定时器，防止程序跑飞死机
+
+**作用**：当单片机因为软硬件问题或者外界干扰导致死机时，自动复位单片机，使系统重新正常工作。
+
+可以把看门狗理解成「倒计时炸弹」：程序正常运行时，会定时去「喂狗」刷新倒计时；一旦程序跑飞或死循环，没人喂狗，倒计时归零，看门狗就触发复位，把跑飞的程序拉回正轨。
+
+### 56.1 看门狗的基本工作原理
+
+![看门狗工作原理](./11.15/看门狗工作原理.jpg)
+
+> **工作原理**：看门狗是一个特殊的定时器，计时结束时，就会重启单片机；如果计时结束前，执行喂狗操作，就会重新开始计数。
+>
+> 图中关键：看门狗计数器从初值开始递减，正常程序在计数器归零前不断「喂狗」（重装载计数器初值），计数器就永远到不了 0；一旦程序卡死、喂狗停止，计数器减到 0，便触发复位信号重启系统。
+
+### 56.2 独立看门狗——IWDG
+
+![独立看门狗](./11.15/独立看门狗.jpg)
+
+> **独立看门狗 IWDG**：看门狗的时钟由独立的 RC 振荡器（LSI，约 30k~60kHz，通常取 40kHz）提供，精度不高。因为它用的是独立的低速时钟，与主时钟无关，所以即使主时钟出故障，独立看门狗依然能工作，独立性最强。
+
+### 56.3 独立看门狗 IWDG 和窗口看门狗 WWDG 的区别
+
+![IWDG与WWADG区别](./11.15/IWDG与WWADG区别.jpg)
+
+> **IWDG 与 WWDG 的区别**：
+>
+> | 对比项 | 独立看门狗 IWDG | 窗口看门狗 WWDG |
+> | --- | --- | --- |
+> | 时钟源 | 独立 LSI 时钟（约 40kHz） | 系统 PCLK1（APB1）时钟 |
+> | 计数方式 | 12 位递减计数器 | 7 位递减计数器（最大 0x7F） |
+> | 是否有中断 | 无中断，超时直接复位 | 有中断，可在中断里做复位前处理 |
+> | 控制方式 | 硬件/软件均可启动 | 只能软件控制 |
+> | 喂狗窗口 | 计数器小于重装载值即可 | 必须在 0x40 与窗口值之间喂狗 |
+> | 主要用途 | 监视硬件错误、程序跑飞 | 监视软件是否按预定逻辑执行 |
+
+> 一句话记忆：**独立看门狗管「硬件死活」，窗口看门狗管「软件节奏」**——独立狗只要喂了就没事；窗口狗必须「不早不晚」地在窗口期内喂，喂早了或喂晚了都会复位。
+
+### 56.4 看门狗的启动和喂狗
+
+![看门狗的喂狗和启动](./11.15/看门狗的喂狗和启动.jpg)
+
+> **启动和喂狗**：先写入看门狗的预分频系数和重装载值，再启动看门狗（独立看门狗一旦启动，软件无法关闭，只能复位后才会停止）。喂狗就是把重装载值重新写入计数器，让倒计时重新开始。
+
+### 56.5 三个注意问题
+
+![三个注意问题（1）](./11.15/三个注意问题（1）.jpg)
+
+![三个注意问题（2）](./11.15/三个注意问题（2）.jpg)
+
+> **看门狗的注意问题**：
+> 1. **喂狗位置要合理**：喂狗语句要放在程序正常执行的主循环里，不能放在可能被跳过的代码里，否则程序卡死时反而可能「误喂狗」。
+> 2. **超时时间要合适**：超时时间设得太短，正常程序来不及喂狗就复位；设得太长，出问题时恢复又太慢。
+> 3. **独立看门狗启动后不可停**：IWDG 一旦开启，软件无法关闭，直到复位才会停止，所以要在确认系统稳定后再启动。
+
+至此，STM32 的第一篇章学习就已经告一段落了，最后的几个不是那么核心的知识点我写的比较水，只了解了基本概念，没有代码编写和实验制作，但是主打一个了解好吧，我该学习 FreeRTOS 了，告一段落，告一段落！！！
