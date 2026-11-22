@@ -127,13 +127,16 @@ function makeAssignId() {
 }
 
 // 生成整篇笔记的结构：
-//   - dates：H1 标题（日期小节），供左侧「日期目录」跳转
-//   - toc：  H2~H4 标题，供左侧「本篇目录」跳转
+//   - dates： H1 中的日期小节（如「10月20日」），供左侧「日期目录」跳转
+//   - titles：H1 中的大标题（如「一、STM32 芯片基础」），供左侧「标题目录」跳转
+//   - toc：   H2~H4 标题，供左侧「本篇目录」跳转
 //   - keyPoints：重点块（带锚点），供右侧「重点内容」点击跳转
 //   - html：渲染后已补好 id 锚点（H1~H4 标题 + 重点引用块）
 function buildToc(content, assetBase = '') {
   const toc = [];
   const dates = [];
+  const titles = [];
+  const h1List = []; // 按正文顺序记录所有 H1，用于渲染时补 id
   const assignId = makeAssignId();
 
   // 相对路径图片改写成可访问的绝对路径（不改动 http(s)、/ 开头、data: 这类原样地址）
@@ -144,11 +147,21 @@ function buildToc(content, assetBase = '') {
 
   const clean = (s) => s.replace(/[*_`]/g, '').trim();
 
+  // 日期小节：如「10月20日」「11月1日」；大标题：如「一、STM32 芯片基础」
+  const DATE_RE = /^\d{1,2}\s*月\s*\d{1,2}\s*日/;
+  const TITLE_RE = /^[一二三四五六七八九十百]+\s*[、.．]/;
+
   for (const raw of plain.split('\n')) {
     let m = raw.match(/^#\s+(.+?)\s*$/);
     if (m) {
       const text = clean(m[1]);
-      dates.push({ text, id: assignId(text) });
+      const id = assignId(text);
+      let type = 'none';
+      if (DATE_RE.test(text)) type = 'date';
+      else if (TITLE_RE.test(text)) type = 'title';
+      h1List.push({ text, id, type });
+      if (type === 'date') dates.push({ text, id });
+      else if (type === 'title') titles.push({ text, id });
       continue;
     }
     m = raw.match(/^(#{2,4})\s+(.+?)\s*$/);
@@ -162,12 +175,12 @@ function buildToc(content, assetBase = '') {
   // 重点内容（顺序与正文一致），固定 key-N 作为锚点，避免中文被 slug 清空
   const keyPoints = extractKeyPoints(content).map((text, i) => ({ text, id: `key-${i + 1}` }));
 
-  // 渲染 HTML 并给标题补 id（H1 走 dates，H2~H4 走 toc）
-  let dateCursor = 0;
+  // 渲染 HTML 并给标题补 id（H1 按 h1List 顺序，H2~H4 走 toc）
+  let h1Cursor = 0;
   let tocCursor = 0;
   let html = marked.parse(md).replace(/<h([1-4])>/g, (full, lvl) => {
     if (lvl === '1') {
-      const item = dates[dateCursor++];
+      const item = h1List[h1Cursor++];
       return item ? `<h1 id="${item.id}">` : full;
     }
     const item = toc[tocCursor++];
@@ -185,7 +198,7 @@ function buildToc(content, assetBase = '') {
     return full;
   });
 
-  return { toc, dates, keyPoints, html };
+  return { toc, dates, titles, keyPoints, html };
 }
 
 // 防止路径穿越，只允许安全的文件名

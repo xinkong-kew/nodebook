@@ -1,6 +1,6 @@
 <template>
   <div class="container container-wide note-layout">
-    <!-- 左侧：日期目录 + 本篇目录（固定，占满高度） -->
+    <!-- 左侧：日期目录 + 标题目录 + 本篇目录（固定，占满高度） -->
     <aside class="sidebar">
       <div class="sidebar-inner sidebar-panel sidebar-full">
         <section class="toc-group">
@@ -25,6 +25,31 @@
           </nav>
           <p v-show="datesOpen && note && (!note.dates || !note.dates.length)" class="sidebar-hint">
             本页没有日期小节。
+          </p>
+        </section>
+
+        <section class="toc-group">
+          <button type="button" class="toc-group-head" @click="titlesOpen = !titlesOpen">
+            <span>标题目录</span>
+            <span class="chevron" :class="{ open: titlesOpen }">▾</span>
+          </button>
+          <nav
+            v-show="titlesOpen"
+            v-if="note && note.titles && note.titles.length"
+            class="toc"
+          >
+            <a
+              v-for="t in note.titles"
+              :key="t.id"
+              class="toc-item title-item"
+              href="#"
+              @click.prevent="scrollTo(t.id)"
+            >
+              {{ t.text }}
+            </a>
+          </nav>
+          <p v-show="titlesOpen && note && (!note.titles || !note.titles.length)" class="sidebar-hint">
+            本页没有大标题。
           </p>
         </section>
 
@@ -77,7 +102,7 @@
           </div>
         </div>
         <!-- 内容由后端将 Markdown 渲染为 HTML，标题带锚点 -->
-        <div class="content" v-html="note.html"></div>
+        <div class="content" v-html="note.html" @click="onContentClick"></div>
       </article>
     </div>
 
@@ -105,10 +130,22 @@
   </div>
 
   <NoteModal :open="showModal" :note="note" @close="showModal = false" @saved="onSaved" />
+
+  <!-- 图片放大预览：点击图片查看，滚轮缩放 -->
+  <div v-if="zoomSrc" class="lightbox" @click="closeZoom" @wheel.prevent="onZoomWheel">
+    <button class="lightbox-close" @click.stop="closeZoom" title="关闭">×</button>
+    <img
+      :src="zoomSrc"
+      :style="{ transform: `scale(${zoomScale})` }"
+      class="lightbox-img"
+      alt="预览"
+      @click.stop
+    />
+  </div>
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api, formatDate } from '../api';
 import { showToast } from '../utils/toast';
@@ -121,7 +158,10 @@ const error = ref('');
 const note = ref(null);
 const showModal = ref(false);
 const datesOpen = ref(true);
+const titlesOpen = ref(true);
 const tocOpen = ref(true);
+const zoomSrc = ref('');
+const zoomScale = ref(1);
 
 async function loadNote(slug) {
   loading.value = true;
@@ -162,7 +202,33 @@ async function remove() {
   }
 }
 
+// 点击正文中的图片时打开放大预览
+function onContentClick(e) {
+  const img = e.target.closest('img');
+  if (!img) return;
+  zoomSrc.value = img.src;
+  zoomScale.value = 1;
+}
+
+function closeZoom() {
+  zoomSrc.value = '';
+  zoomScale.value = 1;
+}
+
+// 滚轮缩放图片（0.5 ~ 5 倍）
+function onZoomWheel(e) {
+  if (!zoomSrc.value) return;
+  const step = e.deltaY < 0 ? 0.1 : -0.1;
+  zoomScale.value = Math.min(5, Math.max(0.5, zoomScale.value + step));
+}
+
+function onKeydown(e) {
+  if (e.key === 'Escape' && zoomSrc.value) closeZoom();
+}
+
 onMounted(() => loadNote(route.params.slug));
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 // 切换笔记时同一组件复用，需要监听 slug 变化
 watch(
