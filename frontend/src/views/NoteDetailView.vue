@@ -133,7 +133,7 @@
 
   <!-- 图片放大预览：点击图片查看，滚轮缩放 -->
   <div v-if="zoomSrc" class="lightbox" @click="closeZoom" @wheel.prevent="onZoomWheel">
-    <button class="lightbox-close" @click.stop="closeZoom" title="关闭">×</button>
+    <button type="button" class="lightbox-close" @click.stop="closeZoom" title="关闭">×</button>
     <img
       :src="zoomSrc"
       :style="{ transform: `scale(${zoomScale})` }"
@@ -234,6 +234,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 watch(
   () => route.params.slug,
   (slug) => {
+    closeZoom();
     if (slug) loadNote(slug);
   }
 );

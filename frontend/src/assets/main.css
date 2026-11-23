@@ -497,8 +497,9 @@ textarea:focus {
   max-height: 90vh;
   object-fit: contain;
   border-radius: 4px;
-  transition: transform 0.1s ease;
+  transition: transform 0.12s ease;
   user-select: none;
+  will-change: transform;
 }
 
 .lightbox-close {
@@ -511,7 +512,7 @@ textarea:focus {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
   cursor: pointer;
 }
